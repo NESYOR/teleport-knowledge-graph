@@ -7,3 +7,9 @@ collection:
   enabled_collectors: [cluster, users, roles, nodes]
 storage:
   path: ./snapshots
+teleport:
+  auth_mode: profile
+  profile_path: ~/.tsh
+  cluster: example-cluster
+  proxy_addr: proxy.example.com:443
+  insecure: false
