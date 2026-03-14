@@ -1,0 +1,9 @@
+mode: cli
+log:
+  level: info
+  format: json
+collection:
+  timeout: 2m
+  enabled_collectors: [cluster, users, roles, nodes]
+storage:
+  path: ./snapshots

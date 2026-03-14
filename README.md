@@ -1,17 +1,23 @@
 # teleport-knowledge-graph
 
-This repository contains a staged Codex workflow for building a **Teleport Cluster Digital Twin** project.
+Teleport Cluster Digital Twin staged build repository.
 
-## Documents
-- `MASTER_PROMPT.md`: full master prompt and staged prompt sequence.
-- `PHASE1_ARCHITECTURE.md`: completed Phase 1 output (architecture, models, API and CLI design).
+## Current status
+- `MASTER_PROMPT.md`: full project specification prompt.
+- `PHASE1_ARCHITECTURE.md`: architecture and contracts.
+- **Phase 2 scaffolding implemented**: module, entrypoint, config/logging, interfaces, domain model, graph package, storage abstractions.
 
-## Recommended usage
-Use the staged prompts in order:
-1. Architecture (Phase 1)
-2. Scaffolding
-3. Teleport integration
-4. Analysis engine
-5. Interfaces (CLI + REST)
-6. AI layer
-7. Hardening
+## Project layout (implemented in this phase)
+- `cmd/twin`: entrypoint bootstrap.
+- `internal/config`: configuration model and validation.
+- `internal/logging`: structured logger creation.
+- `internal/model`: typed entities, relationships, snapshot envelope, deterministic IDs.
+- `internal/graph`: typed in-memory graph + traversal + path search + export.
+- `internal/storage`: filesystem JSON snapshot store and in-memory current snapshot store.
+- `internal/teleport`, `internal/collectors`, `internal/analysis`, `internal/diff`, `internal/api`, `internal/cli`, `internal/ai`: foundational interfaces/contracts.
+- `pkg/twinapi`: schema version contract.
+
+## Quick start
+```bash
+go build ./...
+```
