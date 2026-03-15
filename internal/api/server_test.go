@@ -47,6 +47,28 @@ func TestCollectAndSummary(t *testing.T) {
 	}
 }
 
+func TestMethodGuards(t *testing.T) {
+	s, _ := newTestServer(t)
+	cases := []struct {
+		method string
+		path   string
+	}{
+		{method: http.MethodPost, path: "/healthz"},
+		{method: http.MethodGet, path: "/collect"},
+		{method: http.MethodPost, path: "/summary"},
+		{method: http.MethodPost, path: "/analysis/risks"},
+		{method: http.MethodPost, path: "/roles/prod-admin"},
+	}
+	for _, tc := range cases {
+		r := httptest.NewRequest(tc.method, tc.path, nil)
+		w := httptest.NewRecorder()
+		s.Routes().ServeHTTP(w, r)
+		if w.Code != http.StatusMethodNotAllowed {
+			t.Fatalf("expected 405 for %s %s got %d", tc.method, tc.path, w.Code)
+		}
+	}
+}
+
 func TestDiffEndpoint(t *testing.T) {
 	s, store := newTestServer(t)
 	old := model.Snapshot{SnapshotID: "old", Entities: []model.Entity{{ID: "user:1", Type: model.EntityUser, Name: "alice"}}}
@@ -64,5 +86,16 @@ func TestDiffEndpoint(t *testing.T) {
 	s.Routes().ServeHTTP(w, r)
 	if w.Code != http.StatusOK {
 		t.Fatalf("expected 200 got %d", w.Code)
+	}
+}
+
+func TestDiffValidation(t *testing.T) {
+	s, _ := newTestServer(t)
+	payload, _ := json.Marshal(map[string]string{"old_id": "", "new_id": "new"})
+	r := httptest.NewRequest(http.MethodPost, "/diff", bytes.NewReader(payload))
+	w := httptest.NewRecorder()
+	s.Routes().ServeHTTP(w, r)
+	if w.Code != http.StatusBadRequest {
+		t.Fatalf("expected 400 got %d", w.Code)
 	}
 }

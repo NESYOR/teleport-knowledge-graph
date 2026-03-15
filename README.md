@@ -102,3 +102,7 @@ make serve
 3. Add richer role selector evaluation and privilege-path analysis.
 4. Add periodic collection scheduler and historical trend endpoints.
 5. Add MCP server endpoints and pluggable graph database backend.
+
+## Repository tree
+
+- Full current tree: `FINAL_TREE.md`

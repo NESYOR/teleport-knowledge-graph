@@ -76,6 +76,10 @@ func (s *Server) collect(w http.ResponseWriter, r *http.Request) {
 }
 
 func (s *Server) current(w http.ResponseWriter, r *http.Request) {
+	if r.Method != http.MethodGet {
+		s.write(w, http.StatusMethodNotAllowed, nil, "method not allowed")
+		return
+	}
 	snap, err := s.Store.LoadCurrent(r.Context())
 	if err != nil {
 		s.write(w, http.StatusNotFound, nil, err.Error())
@@ -85,6 +89,10 @@ func (s *Server) current(w http.ResponseWriter, r *http.Request) {
 }
 
 func (s *Server) summary(w http.ResponseWriter, r *http.Request) {
+	if r.Method != http.MethodGet {
+		s.write(w, http.StatusMethodNotAllowed, nil, "method not allowed")
+		return
+	}
 	snap, err := s.Store.LoadCurrent(r.Context())
 	if err != nil {
 		s.write(w, http.StatusNotFound, nil, err.Error())
@@ -96,11 +104,20 @@ func (s *Server) summary(w http.ResponseWriter, r *http.Request) {
 }
 
 func (s *Server) userAccess(w http.ResponseWriter, r *http.Request) {
+	if r.Method != http.MethodGet {
+		s.write(w, http.StatusMethodNotAllowed, nil, "method not allowed")
+		return
+	}
 	if !strings.HasSuffix(r.URL.Path, "/access") {
 		s.write(w, http.StatusNotFound, nil, "not found")
 		return
 	}
 	name := strings.TrimSuffix(strings.TrimPrefix(r.URL.Path, "/users/"), "/access")
+	name = strings.TrimSpace(name)
+	if name == "" {
+		s.write(w, http.StatusBadRequest, nil, "user name is required")
+		return
+	}
 	snap, err := s.Store.LoadCurrent(r.Context())
 	if err != nil {
 		s.write(w, http.StatusNotFound, nil, err.Error())
@@ -115,11 +132,20 @@ func (s *Server) userAccess(w http.ResponseWriter, r *http.Request) {
 }
 
 func (s *Server) resourceExposure(w http.ResponseWriter, r *http.Request) {
+	if r.Method != http.MethodGet {
+		s.write(w, http.StatusMethodNotAllowed, nil, "method not allowed")
+		return
+	}
 	if !strings.HasSuffix(r.URL.Path, "/exposure") {
 		s.write(w, http.StatusNotFound, nil, "not found")
 		return
 	}
 	id := strings.TrimSuffix(strings.TrimPrefix(r.URL.Path, "/resources/"), "/exposure")
+	id = strings.TrimSpace(id)
+	if id == "" {
+		s.write(w, http.StatusBadRequest, nil, "resource id is required")
+		return
+	}
 	snap, err := s.Store.LoadCurrent(r.Context())
 	if err != nil {
 		s.write(w, http.StatusNotFound, nil, err.Error())
@@ -134,7 +160,15 @@ func (s *Server) resourceExposure(w http.ResponseWriter, r *http.Request) {
 }
 
 func (s *Server) roleByName(w http.ResponseWriter, r *http.Request) {
-	name := strings.TrimPrefix(r.URL.Path, "/roles/")
+	if r.Method != http.MethodGet {
+		s.write(w, http.StatusMethodNotAllowed, nil, "method not allowed")
+		return
+	}
+	name := strings.TrimSpace(strings.TrimPrefix(r.URL.Path, "/roles/"))
+	if name == "" {
+		s.write(w, http.StatusBadRequest, nil, "role name is required")
+		return
+	}
 	snap, err := s.Store.LoadCurrent(r.Context())
 	if err != nil {
 		s.write(w, http.StatusNotFound, nil, err.Error())
@@ -150,6 +184,10 @@ func (s *Server) roleByName(w http.ResponseWriter, r *http.Request) {
 }
 
 func (s *Server) risks(w http.ResponseWriter, r *http.Request) {
+	if r.Method != http.MethodGet {
+		s.write(w, http.StatusMethodNotAllowed, nil, "method not allowed")
+		return
+	}
 	snap, err := s.Store.LoadCurrent(r.Context())
 	if err != nil {
 		s.write(w, http.StatusNotFound, nil, err.Error())
@@ -171,6 +209,10 @@ func (s *Server) diff(w http.ResponseWriter, r *http.Request) {
 	var req diffRequest
 	if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
 		s.write(w, http.StatusBadRequest, nil, err.Error())
+		return
+	}
+	if strings.TrimSpace(req.OldID) == "" || strings.TrimSpace(req.NewID) == "" {
+		s.write(w, http.StatusBadRequest, nil, "old_id and new_id are required")
 		return
 	}
 	oldSnap, err := s.Store.Load(r.Context(), req.OldID)
