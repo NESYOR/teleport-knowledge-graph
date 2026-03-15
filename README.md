@@ -10,6 +10,7 @@ Teleport Cluster Digital Twin staged build repository.
 - **Phase 4 analysis implemented**: user access explanation, resource exposure analysis, deterministic risk checks, topology summary, and enhanced snapshot diff classification.
 - **Phase 5 interfaces implemented**: CLI command runner and REST API server with collection, summary, explain, risk, role, and diff endpoints.
 - **Phase 6 AI layer implemented**: graph context builder, deterministic summarizers, local rule reasoner, provider-neutral adapter contract, static adapter, and prompt templates.
+- **Phase 7 hardening implemented**: config-file parsing/validation improvements, deterministic graph export ordering, and consistency fixes in API/CLI paths.
 
 ## Quick start
 ```bash

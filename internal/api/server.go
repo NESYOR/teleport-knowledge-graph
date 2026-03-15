@@ -1,7 +1,6 @@
 package api
 
 import (
-	"context"
 	"encoding/json"
 	"net/http"
 	"strings"
@@ -174,13 +173,12 @@ func (s *Server) diff(w http.ResponseWriter, r *http.Request) {
 		s.write(w, http.StatusBadRequest, nil, err.Error())
 		return
 	}
-	ctx := context.Background()
-	oldSnap, err := s.Store.Load(ctx, req.OldID)
+	oldSnap, err := s.Store.Load(r.Context(), req.OldID)
 	if err != nil {
 		s.write(w, http.StatusNotFound, nil, "old snapshot: "+err.Error())
 		return
 	}
-	newSnap, err := s.Store.Load(ctx, req.NewID)
+	newSnap, err := s.Store.Load(r.Context(), req.NewID)
 	if err != nil {
 		s.write(w, http.StatusNotFound, nil, "new snapshot: "+err.Error())
 		return

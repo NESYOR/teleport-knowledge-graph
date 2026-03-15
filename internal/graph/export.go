@@ -1,6 +1,10 @@
 package graph
 
-import "github.com/example/teleport-cluster-digital-twin/internal/model"
+import (
+	"sort"
+
+	"github.com/example/teleport-cluster-digital-twin/internal/model"
+)
 
 // Export converts graph contents into snapshot entities and relationships.
 func (g *Graph) Export() ([]model.Entity, []model.Relationship) {
@@ -12,5 +16,7 @@ func (g *Graph) Export() ([]model.Entity, []model.Relationship) {
 	for _, e := range g.edgesByID {
 		edges = append(edges, e)
 	}
+	sort.Slice(nodes, func(i, j int) bool { return nodes[i].ID < nodes[j].ID })
+	sort.Slice(edges, func(i, j int) bool { return edges[i].ID < edges[j].ID })
 	return nodes, edges
 }

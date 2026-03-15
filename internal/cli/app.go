@@ -5,7 +5,6 @@ import (
 	"encoding/json"
 	"fmt"
 	"io"
-	"strings"
 
 	"github.com/example/teleport-cluster-digital-twin/internal/analysis"
 	"github.com/example/teleport-cluster-digital-twin/internal/collectors"
@@ -145,7 +144,7 @@ func (r *Runner) runDiff(ctx context.Context, oldID, newID string) error {
 func printEntities(out io.Writer, entities []model.Entity, typ model.EntityType) error {
 	for _, e := range entities {
 		if e.Type == typ {
-			if _, err := fmt.Fprintln(out, strings.TrimSpace(string(e.Type))+":", e.ID, e.Name); err != nil {
+			if _, err := fmt.Fprintln(out, string(e.Type)+":", e.ID, e.Name); err != nil {
 				return err
 			}
 		}
