@@ -1,0 +1,72 @@
+{
+  "snapshot_id": "snapshot:sample",
+  "collected_at": "2026-01-01T00:00:00Z",
+  "source": {
+    "cluster_name": "example-cluster",
+    "auth_source": "profile",
+    "caller": "local-user"
+  },
+  "collector_status": [
+    {
+      "name": "cluster",
+      "duration_ms": 1,
+      "started_at": "2026-01-01T00:00:00Z",
+      "finished_at": "2026-01-01T00:00:00Z",
+      "counts": {
+        "clusters": 1
+      }
+    }
+  ],
+  "entities": [
+    {
+      "id": "cluster:example",
+      "type": "Cluster",
+      "name": "example-cluster",
+      "cluster": "example-cluster"
+    },
+    {
+      "id": "user:alice",
+      "type": "User",
+      "name": "alice",
+      "cluster": "example-cluster"
+    },
+    {
+      "id": "role:prod-admin",
+      "type": "Role",
+      "name": "prod-admin",
+      "cluster": "example-cluster"
+    },
+    {
+      "id": "node:prod-1",
+      "type": "Node",
+      "name": "prod-1",
+      "cluster": "example-cluster",
+      "namespace": "default",
+      "labels": {
+        "env": "prod"
+      }
+    }
+  ],
+  "relationships": [
+    {
+      "id": "edge:user-role",
+      "type": "USER_HAS_ROLE",
+      "from_id": "user:alice",
+      "to_id": "role:prod-admin",
+      "evidence": "teleport.user.roles",
+      "confidence": 1
+    },
+    {
+      "id": "edge:role-node",
+      "type": "ACCESS_PATH",
+      "from_id": "role:prod-admin",
+      "to_id": "node:prod-1",
+      "evidence": "role selector match",
+      "confidence": 1
+    }
+  ],
+  "metadata": {
+    "auth_mode": "profile",
+    "auth_detail": "~/.tsh"
+  }
+}
