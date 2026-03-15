@@ -1,0 +1,17 @@
+mode: cli
+log:
+  level: info
+  format: json
+collection:
+  timeout: 2m
+  enabled_collectors: [cluster, users, roles, nodes]
+storage:
+  path: ./snapshots
+teleport:
+  auth_mode: profile
+  profile_path: ~/.tsh
+  cluster: example-cluster
+  proxy_addr: proxy.example.com:443
+  insecure: false
+api:
+  listen_addr: :8080
