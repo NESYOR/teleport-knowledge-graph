@@ -9,6 +9,7 @@ Teleport Cluster Digital Twin staged build repository.
 - **Phase 3 integration implemented**: Teleport auth/client factory contracts, concrete collectors, collector orchestration with partial-failure handling, and snapshot assembly.
 - **Phase 4 analysis implemented**: user access explanation, resource exposure analysis, deterministic risk checks, topology summary, and enhanced snapshot diff classification.
 - **Phase 5 interfaces implemented**: CLI command runner and REST API server with collection, summary, explain, risk, role, and diff endpoints.
+- **Phase 6 AI layer implemented**: graph context builder, deterministic summarizers, local rule reasoner, provider-neutral adapter contract, static adapter, and prompt templates.
 
 ## Quick start
 ```bash
