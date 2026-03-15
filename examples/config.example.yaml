@@ -13,3 +13,5 @@ teleport:
   cluster: example-cluster
   proxy_addr: proxy.example.com:443
   insecure: false
+api:
+  listen_addr: :8080

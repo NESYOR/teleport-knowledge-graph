@@ -3,12 +3,14 @@ package main
 import (
 	"context"
 	"errors"
-	"fmt"
 	"log/slog"
+	"net/http"
 	"os"
 	"os/signal"
 	"syscall"
 
+	"github.com/example/teleport-cluster-digital-twin/internal/api"
+	"github.com/example/teleport-cluster-digital-twin/internal/cli"
 	"github.com/example/teleport-cluster-digital-twin/internal/collectors"
 	"github.com/example/teleport-cluster-digital-twin/internal/config"
 	"github.com/example/teleport-cluster-digital-twin/internal/logging"
@@ -31,30 +33,28 @@ func main() {
 	defer cancel()
 
 	factory := teleport.NewFactory(cfg.Teleport, logger)
-	client, auth, err := factory.New(timeoutCtx)
-	if err != nil {
-		logger.ErrorContext(timeoutCtx, "failed to initialize teleport client", "error", err)
-		os.Exit(1)
-	}
-
 	orch := collectors.NewOrchestrator(logger,
 		collectors.ClusterCollector{},
 		collectors.UsersCollector{},
 		collectors.RolesCollector{},
 		collectors.NodesCollector{},
 	)
-	snapshot := orch.Collect(timeoutCtx, client, auth)
-
 	store := storage.NewFSJSONStore(cfg.Storage.Path)
-	if err := store.Save(timeoutCtx, snapshot); err != nil {
-		if errors.Is(err, context.DeadlineExceeded) {
-			logger.ErrorContext(timeoutCtx, "collection timed out before snapshot persisted", "error", err)
-		} else {
-			logger.ErrorContext(timeoutCtx, "failed to persist snapshot", "error", err)
+
+	if len(os.Args) > 1 && os.Args[1] == "serve" {
+		srv := api.NewServer(factory, orch, store)
+		httpServer := &http.Server{Addr: cfg.API.ListenAddr, Handler: srv.Routes()}
+		logger.InfoContext(timeoutCtx, "starting API server", "addr", cfg.API.ListenAddr)
+		if err := httpServer.ListenAndServe(); err != nil && !errors.Is(err, http.ErrServerClosed) {
+			logger.ErrorContext(timeoutCtx, "api server failed", "error", err)
+			os.Exit(1)
 		}
-		os.Exit(1)
+		return
 	}
 
-	logger.InfoContext(timeoutCtx, "collection completed", "snapshot_id", snapshot.SnapshotID, "entities", len(snapshot.Entities), "relationships", len(snapshot.Relationships), "errors", len(snapshot.CollectorErrors))
-	fmt.Println(snapshot.SnapshotID)
+	r := &cli.Runner{Factory: factory, Orchestrator: orch, Store: store, Out: os.Stdout}
+	if err := r.Run(timeoutCtx, os.Args[1:]); err != nil {
+		logger.ErrorContext(timeoutCtx, "command failed", "error", err)
+		os.Exit(1)
+	}
 }

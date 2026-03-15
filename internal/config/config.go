@@ -14,6 +14,7 @@ type Config struct {
 	Collection CollectionConfig
 	Storage    StorageConfig
 	Teleport   TeleportConfig
+	API        APIConfig
 }
 
 // LogConfig controls structured logging behavior.
@@ -43,34 +44,28 @@ type TeleportConfig struct {
 	Insecure     bool
 }
 
+// APIConfig controls REST API server behavior.
+type APIConfig struct {
+	ListenAddr string
+}
+
 // Load loads config from a path. For Phase scaffolding, defaults are used
 // when no file path is provided.
 func Load(path string) (Config, error) {
 	cfg := Config{
-		Mode: "cli",
-		Log: LogConfig{
-			Level:  "info",
-			Format: "json",
-		},
-		Collection: CollectionConfig{
-			Timeout:           2 * time.Minute,
-			EnabledCollectors: []string{"cluster", "users", "roles", "nodes"},
-		},
-		Storage: StorageConfig{Path: "./snapshots"},
-		Teleport: TeleportConfig{
-			AuthMode: "profile",
-		},
+		Mode:       "cli",
+		Log:        LogConfig{Level: "info", Format: "json"},
+		Collection: CollectionConfig{Timeout: 2 * time.Minute, EnabledCollectors: []string{"cluster", "users", "roles", "nodes"}},
+		Storage:    StorageConfig{Path: "./snapshots"},
+		Teleport:   TeleportConfig{AuthMode: "profile"},
+		API:        APIConfig{ListenAddr: ":8080"},
 	}
-
 	if path == "" {
 		return cfg, Validate(cfg)
 	}
-
 	if _, err := os.Stat(path); err != nil {
 		return Config{}, fmt.Errorf("config path %q not accessible: %w", path, err)
 	}
-
-	// YAML parsing intentionally deferred; this phase focuses on Teleport integration contracts.
 	return cfg, Validate(cfg)
 }
 
@@ -87,6 +82,9 @@ func Validate(cfg Config) error {
 	}
 	if cfg.Teleport.AuthMode == "" {
 		return errors.New("teleport auth mode is required")
+	}
+	if cfg.API.ListenAddr == "" {
+		return errors.New("api listen addr is required")
 	}
 	return nil
 }
